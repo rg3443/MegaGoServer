@@ -4,12 +4,12 @@ using namespace MegaGo::Server;
 
 MGClient::MGClient()
 {
-
+    socket = nullptr;
 }
 
 MGClient::~MGClient()
 {
-
+    if(socket != nullptr) socket->deleteLater();
 }
 
 void MGClient::SetAccountData(ClientAccount data)
@@ -19,7 +19,19 @@ void MGClient::SetAccountData(ClientAccount data)
 
 MegaGo::Model::ClientAccount* MGClient::GetAccountData()
 {
-    if(socket == nullptr) return nullptr;
+    if(!socket->isValid()) return nullptr;
 
     return &accountData;
+}
+
+void MGClient::SetSocket(QTcpSocket *connection)
+{
+    if(connection->isValid()) {
+        socket = connection;
+    }
+}
+
+QTcpSocket* MGClient::GetSocket()
+{
+    return socket;
 }

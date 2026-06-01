@@ -10,7 +10,7 @@ using namespace MegaGo::Model;
 namespace MegaGo {
 namespace Server {
     class MGClient : public QObject {
-        Q_OBJECT
+    Q_OBJECT
     private:
         QTcpSocket * socket;
         ClientAccount accountData;
@@ -21,8 +21,8 @@ namespace Server {
         void SetAccountData(ClientAccount data);
         ClientAccount * GetAccountData();
 
-        void SetConnection(QTc);
-
+        void SetSocket(QTcpSocket * connection);
+        QTcpSocket* GetSocket();
     };
 }
 }

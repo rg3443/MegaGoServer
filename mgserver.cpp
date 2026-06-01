@@ -1,4 +1,4 @@
-#include "MGServer.h"
+#include "mgserver.h"
 
 using namespace MegaGo::Server;
 
@@ -43,4 +43,44 @@ void MGServer::sendToAll(const QByteArray& data) {
 
 void MGServer::sendToClient(QTcpSocket* client, const QByteArray& data) {
     if (client) client->write(data);
+}
+
+void MGServer::Login(QTcpSocket* client, QString username, QString password)
+{
+
+}
+
+void MGServer::CreateRoom(QTcpSocket* client, QString name, MegaGo::Model::RoomSettings settings)
+{
+
+}
+
+void MGServer::JoinRoom(QTcpSocket* client, uint64_t roomGID)
+{
+
+}
+
+void MGServer::ChangeRoomSettings(QTcpSocket* client, MegaGo::Model::RoomSettings roomSettings, MegaGo::Model::GameModeSettings gamemodeSettings)
+{
+
+}
+
+void MGServer::ExitRoom(QTcpSocket* client, uint64_t roomGID)
+{
+
+}
+
+void MGServer::KickPlayer(QTcpSocket* client, uint64_t roomGID, uint64_t clientGID)
+{
+
+}
+
+void MGServer::ChangeColor(QTcpSocket* client, uint64_t colorGID)
+{
+
+}
+
+void MGServer::DeleteRoom(QTcpSocket* client, uint64_t roomGID)
+{
+
 }
