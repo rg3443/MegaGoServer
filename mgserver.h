@@ -15,22 +15,24 @@ namespace Server {
     public:
         explicit MGServer(QObject* parent = nullptr);
         ~MGServer();
-        void start(quint16 port);
+        void Start(quint16 port);
 
-        void sendToAll(const QByteArray& data);
-        void sendToClient(QTcpSocket* client, const QByteArray& data);
+        void SendToAll(const QByteArray& data);
+        void SendToClient(QTcpSocket* client, const QByteArray& data);
+
+        MGClient* GetClient(QTcpSocket* socket);
 
     signals:
-        void clientConnected(QTcpSocket* client);
-        void clientDisconnected(QTcpSocket* client);
-        void dataReceived(QTcpSocket* client, const QByteArray& data);
+        void ClientConnected(QTcpSocket* client);
+        void ClientDisconnected(QTcpSocket* client);
+        void DataReceived(QTcpSocket* client, const QByteArray& data);
 
     protected:
         void incomingConnection(qintptr socketDescriptor) override;
 
     private slots:
-        void onReadyRead();
-        void onDisconnected();
+        void OnReadyRead();
+        void OnDisconnected();
 
         // login menu
         void Login(QTcpSocket* client, QString username, QString password);
@@ -48,7 +50,8 @@ namespace Server {
         void DeleteRoom(QTcpSocket* client, uint64_t roomGID);
 
     private:
-        QVector<QTcpSocket*> clients;
+        QVector<MGClient*> clients;
+        QVector<MegaGo::Model::Room*> rooms; // todo:
     };
 
 }

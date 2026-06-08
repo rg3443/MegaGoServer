@@ -8,46 +8,81 @@ MGServer::~MGServer() {
     for (auto client : clients) client->deleteLater();
 }
 
-void MGServer::start(quint16 port) {
+void MGServer::Start(quint16 port) {
     listen(QHostAddress::Any, port);
 }
 
 void MGServer::incomingConnection(qintptr socketDescriptor) {
     QTcpSocket* client = new QTcpSocket(this);
     client->setSocketDescriptor(socketDescriptor);
-    clients.append(client);
+    MGClient * newClient = new MGClient(client, this);
+    clients.append(newClient);
 
-    connect(client, &QTcpSocket::readyRead, this, &MGServer::onReadyRead);
-    connect(client, &QTcpSocket::disconnected, this, &MGServer::onDisconnected);
+    connect(client, &QTcpSocket::readyRead, this, &MGServer::OnReadyRead);
+    connect(client, &QTcpSocket::disconnected, this, &MGServer::OnDisconnected);
 
-    emit clientConnected(client);
+    emit ClientConnected(client);
 }
 
-void MGServer::onReadyRead() {
+void MGServer::OnReadyRead() {
     QTcpSocket* client = qobject_cast<QTcpSocket*>(sender());
-    if (client) emit dataReceived(client, client->readAll());
+    if (client) emit DataReceived(client, client->readAll());
 }
 
-void MGServer::onDisconnected() {
+void MGServer::OnDisconnected() {
     QTcpSocket* client = qobject_cast<QTcpSocket*>(sender());
     if (client) {
-        clients.removeOne(client);
-        client->deleteLater();
-        emit clientDisconnected(client);
+        for(int cid=0;cid<clients.size();cid++) {
+            if(clients[cid] != nullptr)
+            if(clients[cid]->GetSocket() == client) {
+                clients.erase(clients.begin()+cid);
+                client->deleteLater();
+            }
+        }
+        emit ClientDisconnected(client);
     }
 }
 
-void MGServer::sendToAll(const QByteArray& data) {
-    for (auto client : clients) client->write(data);
+void MGServer::SendToAll(const QByteArray& data) {
+    for (auto client : clients) if(client != nullptr) client->GetSocket()->write(data);
 }
 
-void MGServer::sendToClient(QTcpSocket* client, const QByteArray& data) {
+void MGServer::SendToClient(QTcpSocket* client, const QByteArray& data) {
     if (client) client->write(data);
+}
+
+MGClient* MGServer::GetClient(QTcpSocket *socket)
+{
+    try {
+        for(int cid=0;cid<clients.size();cid++) {
+            if(clients[cid]->GetSocket() == socket)
+                return clients[cid];
+            else throw "MGServer::GetClient: cant find client data";
+        }
+    } catch(const char* err) { qDebug() << err; return nullptr; }
 }
 
 void MGServer::Login(QTcpSocket* client, QString username, QString password)
 {
-
+    // select username + password from bd
+    // if empty throw error
+    // if found ->
+    QString nickname;
+    int imgId;
+    int64_t playedGames,wonGames,lostGames,eatenTokens;
+    int16_t firstSurrender;
+    //nickname = bd->query("get_nickname(username);");
+    //todo:
+    MegaGo::Model::ClientAccount clientData;
+    MegaGo::Model::ClientStatistic stats;
+    stats.playedGames = playedGames;
+    stats.wonGames = wonGames;
+    stats.lostGames = lostGames;
+    stats.eatenTokens = eatenTokens;
+    stats.firstSurrender = firstSurrender;
+    clientData.Set(username,password,nickname,imgId);
+    clientData.SetStats(stats);
+    this->GetClient(client)->SetAccountData(clientData);
 }
 
 void MGServer::CreateRoom(QTcpSocket* client, QString name, MegaGo::Model::RoomSettings settings)

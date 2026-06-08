@@ -15,13 +15,12 @@ namespace Server {
         QTcpSocket * socket;
         ClientAccount accountData;
     public:
-        MGClient();
+        MGClient(QTcpSocket * connection, QObject * parent);
         ~MGClient();
 
         void SetAccountData(ClientAccount data);
         ClientAccount * GetAccountData();
 
-        void SetSocket(QTcpSocket * connection);
         QTcpSocket* GetSocket();
     };
 }

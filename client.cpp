@@ -2,9 +2,13 @@
 
 using namespace MegaGo::Server;
 
-MGClient::MGClient()
+MGClient::MGClient(QTcpSocket * connection, QObject * parent)
+    : QObject(parent)
 {
     socket = nullptr;
+    if(connection->isValid()) {
+        socket = connection;
+    }
 }
 
 MGClient::~MGClient()
@@ -22,13 +26,6 @@ MegaGo::Model::ClientAccount* MGClient::GetAccountData()
     if(!socket->isValid()) return nullptr;
 
     return &accountData;
-}
-
-void MGClient::SetSocket(QTcpSocket *connection)
-{
-    if(connection->isValid()) {
-        socket = connection;
-    }
 }
 
 QTcpSocket* MGClient::GetSocket()
